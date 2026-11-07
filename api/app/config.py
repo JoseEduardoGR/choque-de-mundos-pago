@@ -20,6 +20,12 @@ class Config:
 
     MAX_ROBOTS = int(os.environ.get("MAX_ROBOTS", "30"))
 
+    # Comprobantes que suben las escuelas.
+    COMPROBANTES_DIR = Path(
+        os.environ.get("COMPROBANTES_DIR", BASE_DIR.parent / "datos" / "comprobantes")
+    )
+    MAX_COMPROBANTE_MB = int(os.environ.get("MAX_COMPROBANTE_MB", "8"))
+
     # Datos bancarios. Viven AQUÍ y no en el repositorio: la página es
     # pública en GitHub y una CLABE en un repo queda indexada y en el
     # historial para siempre. El servidor los entrega al generar el folio.

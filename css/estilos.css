@@ -714,6 +714,65 @@ a:hover { color: var(--cian); }
   padding-top: 28px; border-top: var(--borde);
 }
 
+/* ── subir el comprobante ──────────────────────────────────── */
+
+.comprobante { margin-bottom: 36px; }
+
+.soltar {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 32px 24px;
+  border: 1px dashed var(--linea-viva);
+  border-radius: var(--radio);
+  background: var(--panel);
+  cursor: pointer; text-align: center;
+  transition: border-color .18s, background-color .18s;
+}
+.soltar:hover, .soltar--encima {
+  border-color: var(--azul);
+  background: rgba(46, 139, 255, .07);
+}
+.soltar--listo { border-style: solid; border-color: var(--cian); }
+
+.soltar__icono {
+  font-family: var(--mono); font-size: 22px; line-height: 1;
+  color: var(--azul);
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--linea-viva);
+  display: grid; place-items: center;
+}
+.soltar--listo .soltar__icono { color: var(--cian); border-color: var(--cian); }
+.soltar__texto { font-size: 15px; color: var(--hueso); }
+.soltar__formatos {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .08em; color: var(--niebla);
+}
+
+.vista-previa {
+  margin-top: 14px;
+  max-height: 320px; width: auto;
+  border: var(--borde); border-radius: var(--radio);
+}
+
+.comprobante .boton { margin-top: 16px; }
+
+.estado-subida {
+  margin: 14px 0 0; padding: 12px 14px;
+  border-radius: var(--radio); font-size: 14px;
+  border-left: 3px solid var(--azul);
+  background: rgba(46, 139, 255, .09);
+  color: #BBD6FF;
+}
+.estado-subida--bien {
+  border-left-color: var(--cian);
+  background: rgba(53, 230, 224, .09);
+  color: #A7F0ED;
+}
+.estado-subida--mal {
+  border-left-color: var(--ambar);
+  background: rgba(255, 176, 32, .09);
+  color: #FFD489;
+}
+
 /* ── pedir los datos bancarios (sin HTTPS no se publican) ──── */
 
 .pedir-datos {

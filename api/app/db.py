@@ -33,7 +33,9 @@ CREATE TABLE IF NOT EXISTS pagos (
     estado       TEXT    NOT NULL DEFAULT 'pendiente',
     nota         TEXT    NOT NULL DEFAULT '',
     creado_en    TEXT    NOT NULL,
-    confirmado_en TEXT   NOT NULL DEFAULT ''
+    confirmado_en TEXT   NOT NULL DEFAULT '',
+    comprobante  TEXT    NOT NULL DEFAULT '',
+    comprobante_en TEXT  NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_pagos_estado ON pagos(estado);
 CREATE INDEX IF NOT EXISTS idx_pagos_institucion ON pagos(institucion);
@@ -56,7 +58,9 @@ CREATE TABLE IF NOT EXISTS pagos (
     estado       TEXT    NOT NULL DEFAULT 'pendiente',
     nota         TEXT    NOT NULL DEFAULT '',
     creado_en    TEXT    NOT NULL,
-    confirmado_en TEXT   NOT NULL DEFAULT ''
+    confirmado_en TEXT   NOT NULL DEFAULT '',
+    comprobante  TEXT    NOT NULL DEFAULT '',
+    comprobante_en TEXT  NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_pagos_estado ON pagos(estado);
 CREATE INDEX IF NOT EXISTS idx_pagos_institucion ON pagos(institucion);
@@ -110,8 +114,12 @@ def conexion():
         conn.close()
 
 
+# Columnas añadidas después de la primera versión de la tabla.
+COLUMNAS_NUEVAS = (("comprobante", "TEXT"), ("comprobante_en", "TEXT"))
+
+
 def preparar() -> None:
-    """Crea la tabla si no existe. Se llama al arrancar la aplicación."""
+    """Crea la tabla si no existe y agrega columnas nuevas. Al arrancar."""
     with _candado, conexion() as conn:
         esquema = ESQUEMA_POSTGRES if usa_postgres() else ESQUEMA_SQLITE
         if usa_postgres():
@@ -120,6 +128,17 @@ def preparar() -> None:
             conn.commit()
         else:
             conn.executescript(esquema)
+
+        # Migración simple: agregar lo que falte sin tocar los datos.
+        for nombre, tipo in COLUMNAS_NUEVAS:
+            try:
+                conn.execute(
+                    f"ALTER TABLE pagos ADD COLUMN {nombre} {tipo} NOT NULL DEFAULT ''"
+                )
+            except Exception:
+                pass          # ya existía
+        if usa_postgres():
+            conn.commit()
 
 
 def marcador() -> str:

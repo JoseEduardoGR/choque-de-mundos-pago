@@ -517,6 +517,21 @@
       });
     });
 
+    // El bloque de subida solo sirve si hay servidor al que subirlo.
+    const hayServidor = !r.provisional && baseApi() !== null;
+    $('#comprobante').hidden = !hayServidor;
+    if (hayServidor) {
+      archivoElegido = null;
+      $('#soltar').hidden = false;
+      $('#soltar').classList.remove('soltar--listo');
+      $('#soltar-texto').textContent = 'Toca para elegir la foto, o arrástrala aquí';
+      $('#vista-previa').hidden = true;
+      $('#estado-subida').hidden = true;
+      const boton = $('#enviar-comprobante');
+      boton.disabled = true;
+      boton.textContent = 'Enviar comprobante';
+    }
+
     $('.portada').hidden = true;
     $('#formulario').hidden = true;
     $('#resumen').hidden = true;
@@ -579,6 +594,115 @@
         fecha: r.fecha
       })
     }).catch(() => { /* el pago sigue viajando por WhatsApp, correo y la ficha */ });
+  }
+
+  /* ==========================================================
+     6b · Comprobante
+     ========================================================== */
+
+  let archivoElegido = null;
+
+  function baseApi() {
+    const configurada = (CONFIG.api && CONFIG.api.url || '').replace(/\/+$/, '');
+    if (configurada) return configurada;
+    return location.protocol.startsWith('http')
+      ? new URL('.', document.baseURI).href.replace(/\/+$/, '')
+      : null;
+  }
+
+  function dichoEstado(texto, tono) {
+    const nodo = $('#estado-subida');
+    nodo.hidden = false;
+    nodo.textContent = texto;
+    nodo.classList.remove('estado-subida--bien', 'estado-subida--mal');
+    if (tono) nodo.classList.add(`estado-subida--${tono}`);
+  }
+
+  function elegirArchivo(archivo) {
+    if (!archivo) return;
+
+    const tipos = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!tipos.includes(archivo.type)) {
+      dichoEstado('Ese formato no nos sirve. Manda una foto JPG, PNG o WEBP, o un PDF.', 'mal');
+      return;
+    }
+    if (archivo.size > 8 * 1024 * 1024) {
+      dichoEstado('La imagen pesa más de 8 MB. Tómala de nuevo o redúcela.', 'mal');
+      return;
+    }
+
+    archivoElegido = archivo;
+    $('#enviar-comprobante').disabled = false;
+    $('#soltar').classList.add('soltar--listo');
+    $('#soltar-texto').textContent = archivo.name;
+    $('#estado-subida').hidden = true;
+
+    const vista = $('#vista-previa');
+    if (archivo.type.startsWith('image/')) {
+      vista.src = URL.createObjectURL(archivo);
+      vista.hidden = false;
+    } else {
+      vista.hidden = true;
+    }
+  }
+
+  async function subirComprobante() {
+    if (!archivoElegido || !estado.registro) return;
+
+    const base = baseApi();
+    if (!base) {
+      dichoEstado('No hay servidor configurado: mándanos el comprobante por WhatsApp.', 'mal');
+      return;
+    }
+
+    const boton = $('#enviar-comprobante');
+    boton.disabled = true;
+    boton.textContent = 'Enviando…';
+    dichoEstado('Subiendo tu comprobante…');
+
+    try {
+      const cuerpo = new FormData();
+      cuerpo.append('comprobante', archivoElegido);
+
+      const respuesta = await fetch(
+        `${base}/api/pagos/${encodeURIComponent(estado.registro.folio)}/comprobante`,
+        { method: 'POST', body: cuerpo }
+      );
+      const datos = await respuesta.json().catch(() => ({}));
+
+      if (!respuesta.ok) throw new Error(datos.error || `HTTP ${respuesta.status}`);
+
+      dichoEstado(
+        'Listo, recibimos tu comprobante. Te confirmamos el registro dentro de ' +
+        'las siguientes 24 horas.', 'bien');
+      boton.textContent = 'Comprobante enviado';
+      $('#soltar').hidden = true;
+    } catch (error) {
+      dichoEstado(
+        `No se pudo subir (${error.message}). Inténtalo otra vez o mándanoslo por WhatsApp.`,
+        'mal');
+      boton.disabled = false;
+      boton.textContent = 'Enviar comprobante';
+    }
+  }
+
+  function prepararComprobante() {
+    const zona = $('#soltar');
+
+    $('#archivo').addEventListener('change', e => elegirArchivo(e.target.files[0]));
+    $('#enviar-comprobante').addEventListener('click', subirComprobante);
+
+    ['dragenter', 'dragover'].forEach(evt =>
+      zona.addEventListener(evt, e => {
+        e.preventDefault();
+        zona.classList.add('soltar--encima');
+      }));
+    ['dragleave', 'drop'].forEach(evt =>
+      zona.addEventListener(evt, e => {
+        e.preventDefault();
+        zona.classList.remove('soltar--encima');
+      }));
+    zona.addEventListener('drop', e => elegirArchivo(e.dataTransfer.files[0]));
   }
 
   /* ==========================================================
@@ -747,6 +871,8 @@
         boton.textContent = textoOriginal;
       }
     });
+
+    prepararComprobante();
 
     $('#descargar-ficha').addEventListener('click', () => {
       if (estado.registro) descargarFicha(estado.registro);

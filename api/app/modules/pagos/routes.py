@@ -9,7 +9,7 @@ import re
 import secrets
 from functools import wraps
 
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, send_from_directory
 
 from . import repository
 
@@ -150,3 +150,65 @@ def actualizar_pago(folio):
     if pago is None:
         return jsonify({"error": "no encontrado"}), 404
     return jsonify(pago)
+
+
+# ── Comprobantes ────────────────────────────────────────────────────
+# Se identifica el tipo por los primeros bytes, no por la extensión:
+# un .jpg puede traer cualquier cosa dentro.
+FIRMAS = (
+    (b"\xff\xd8\xff", "jpg"),
+    (b"\x89PNG\r\n\x1a\n", "png"),
+    (b"%PDF-", "pdf"),
+)
+
+
+def _tipo_real(datos: bytes) -> str | None:
+    for firma, ext in FIRMAS:
+        if datos.startswith(firma):
+            return ext
+    if datos[:4] == b"RIFF" and datos[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+@bp.post("/<folio>/comprobante")
+def subir_comprobante(folio):
+    """Recibe la foto del comprobante. Público: solo hace falta el folio."""
+    pago = repository.por_folio(folio)
+    if pago is None:
+        return jsonify({"error": "folio no encontrado"}), 404
+
+    archivo = request.files.get("comprobante")
+    if archivo is None or not archivo.filename:
+        return jsonify({"error": "falta el archivo"}), 400
+
+    contenido = archivo.read()
+    if not contenido:
+        return jsonify({"error": "el archivo llegó vacío"}), 400
+
+    extension = _tipo_real(contenido)
+    if extension is None:
+        return jsonify({"error": "solo aceptamos imagen (JPG, PNG, WEBP) o PDF"}), 400
+
+    # El nombre lo ponemos nosotros: nunca el que mandó el navegador.
+    destino = current_app.config["COMPROBANTES_DIR"] / f"{folio}.{extension}"
+    destino.write_bytes(contenido)
+
+    repository.guardar_comprobante(folio, destino.name)
+    return jsonify({
+        "folio": folio,
+        "guardado": True,
+        "archivo": destino.name,
+        "bytes": len(contenido),
+    }), 201
+
+
+@bp.get("/<folio>/comprobante")
+@solo_admin
+def ver_comprobante(folio):
+    pago = repository.por_folio(folio)
+    if pago is None or not pago["comprobante"]:
+        return jsonify({"error": "sin comprobante"}), 404
+    return send_from_directory(
+        current_app.config["COMPROBANTES_DIR"], pago["comprobante"]
+    )

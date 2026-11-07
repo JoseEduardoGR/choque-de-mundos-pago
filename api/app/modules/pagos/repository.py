@@ -14,6 +14,7 @@ CAMPOS = (
     "consecutivo", "folio", "procedencia", "institucion", "responsable",
     "correo", "telefono", "equipos", "robots", "unitario", "total",
     "metodo", "estado", "nota", "creado_en", "confirmado_en",
+    "comprobante", "comprobante_en",
 )
 
 ESTADOS = ("pendiente", "confirmado", "cancelado")
@@ -121,6 +122,19 @@ def cambiar_estado(folio: str, estado: str, nota: str = "") -> dict | None:
         return _a_dict(fila) if fila else None
 
 
+def guardar_comprobante(folio: str, archivo: str) -> dict | None:
+    """Deja anotado el archivo recibido para ese folio."""
+    m = marcador()
+    with conexion() as conn:
+        conn.execute(
+            f"UPDATE pagos SET comprobante = {m}, comprobante_en = {m} WHERE folio = {m}",
+            (archivo, _ahora(), folio),
+        )
+        conn.commit()
+        fila = conn.execute(f"{_seleccion()} WHERE folio = {m}", (folio,)).fetchone()
+        return _a_dict(fila) if fila else None
+
+
 def resumen() -> dict:
     """Cuánto se ha cobrado y cuánto falta, para conciliar de un vistazo."""
     pagos = listar()
@@ -135,4 +149,6 @@ def resumen() -> dict:
         ),
         "monto_confirmado": suma("confirmado"),
         "monto_pendiente": suma("pendiente"),
+        "con_comprobante": sum(1 for p in pagos if p["comprobante"]),
+        "sin_comprobante": sum(1 for p in pagos if not p["comprobante"]),
     }

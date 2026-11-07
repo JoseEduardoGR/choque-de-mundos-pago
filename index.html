@@ -274,8 +274,33 @@
       </ol>
     </div>
 
+    <!-- Subir el comprobante -->
+    <section class="comprobante" id="comprobante">
+      <h3 class="ruta__titulo">Sube tu comprobante</h3>
+      <p class="ruta__texto">
+        Cuando hayas transferido, sube aquí la foto o captura. Es lo que nos
+        permite confirmarte: sin comprobante el lugar se libera.
+      </p>
+
+      <label class="soltar" id="soltar" for="archivo">
+        <input type="file" id="archivo" accept="image/jpeg,image/png,image/webp,application/pdf" hidden>
+        <span class="soltar__icono" aria-hidden="true">↑</span>
+        <span class="soltar__texto" id="soltar-texto">
+          Toca para elegir la foto, o arrástrala aquí
+        </span>
+        <span class="soltar__formatos">JPG, PNG, WEBP o PDF · hasta 8 MB</span>
+      </label>
+
+      <img class="vista-previa" id="vista-previa" alt="Vista previa de tu comprobante" hidden>
+
+      <button class="boton boton--primario boton--ancho" type="button" id="enviar-comprobante" disabled>
+        Enviar comprobante
+      </button>
+      <p class="estado-subida" id="estado-subida" hidden></p>
+    </section>
+
     <div class="ficha__acciones">
-      <a class="boton boton--primario" id="enviar-whatsapp" href="#" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a>
+      <a class="boton boton--fantasma" id="enviar-whatsapp" href="#" target="_blank" rel="noopener">Mandarlo por WhatsApp</a>
       <a class="boton boton--fantasma" id="enviar-correo" href="#">Enviarlo por correo</a>
       <button class="boton boton--fantasma" type="button" id="descargar-ficha">Descargar ficha</button>
       <button class="boton boton--texto" type="button" id="volver">Corregir mis datos</button>

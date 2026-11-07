@@ -18,6 +18,15 @@ def create_app() -> Flask:
 
     CORS(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
 
+    # Tope de subida: un comprobante es una foto, no un video.
+    app.config["MAX_CONTENT_LENGTH"] = app.config["MAX_COMPROBANTE_MB"] * 1024 * 1024
+    app.config["COMPROBANTES_DIR"].mkdir(parents=True, exist_ok=True)
+
+    @app.errorhandler(413)
+    def muy_grande(_):
+        tope = app.config["MAX_COMPROBANTE_MB"]
+        return jsonify({"error": f"el archivo pasa de {tope} MB"}), 413
+
     db.preparar()
 
     from .modules.pagos.routes import bp as pagos_bp
