@@ -159,8 +159,8 @@ const CONFIG = {
      ---------------------------------------------------------- */
   contacto: {
     whatsapp: '525648151705',
-    correo: 'robotica.ares@tesci.edu.mx',            // ⚠ CAMBIAR
-    reglamentoUrl: '#'                               // ⚠ CAMBIAR
+    correo: 'clubderoboticaares@gmail.com',
+    reglamentoUrl: 'https://drive.google.com/file/d/1kf5VbxCn1G57jgGlr_MffDKINZjrWdpr/view'
   },
 
   /* ----------------------------------------------------------
