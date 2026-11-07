@@ -378,6 +378,10 @@
         })
       });
 
+      if (respuesta.status === 409) {
+        cerrarRegistro();
+        throw new Error('registro cerrado');
+      }
       if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
       const datos = await respuesta.json();
 
@@ -389,6 +393,7 @@
       // Y sobre los datos de la cuenta, que no viajan en el repositorio.
       if (datos.transferencia) pago.transferencia = datos.transferencia;
     } catch (error) {
+      if (error.message === 'registro cerrado') throw error;
       console.warn('No se pudo registrar el pago en el servidor:', error);
       pago.folio = generarFolio(pago.tarifa.clave);
       pago.provisional = true;
@@ -495,14 +500,6 @@
       $('#transferencia-folio').textContent = r.folio;
       $('#transferencia-plazo').textContent = `${t.horasParaComprobante} horas`;
     }
-
-    const resumen = textoResumen(r);
-    $('#enviar-whatsapp').href =
-      `https://wa.me/${CONFIG.contacto.whatsapp}?text=${encodeURIComponent(resumen)}`;
-    $('#enviar-correo').href =
-      `mailto:${CONFIG.contacto.correo}` +
-      `?subject=${encodeURIComponent(`Comprobante de pago · ${r.folio}`)}` +
-      `&body=${encodeURIComponent(resumen)}`;
 
     $$('.copiar').forEach(boton => {
       boton.addEventListener('click', async () => {
@@ -750,47 +747,99 @@
 
   const cierre = new Date(CONFIG.evento.cierreRegistro);
 
+  /**
+   * Desglosa lo que falta en meses de calendario y el resto en días,
+   * horas, minutos y segundos. Los meses se cuentan avanzando el
+   * calendario, no dividiendo entre 30: no todos los meses duran igual.
+   */
+  function desglosar(hasta) {
+    const ahora = new Date();
+    let meses = 0;
+    const cursor = new Date(ahora);
+
+    for (;;) {
+      const siguiente = new Date(cursor);
+      siguiente.setMonth(siguiente.getMonth() + 1);
+      if (siguiente > hasta) break;
+      cursor.setTime(siguiente.getTime());
+      meses++;
+    }
+
+    let resto = hasta - cursor;
+    const dias = Math.floor(resto / 86400000);   resto -= dias * 86400000;
+    const horas = Math.floor(resto / 3600000);   resto -= horas * 3600000;
+    const minutos = Math.floor(resto / 60000);   resto -= minutos * 60000;
+    const segundos = Math.floor(resto / 1000);
+
+    return { meses, dias, horas, minutos, segundos };
+  }
+
   function pintarReloj() {
-    const reloj  = $('#reloj');
     const limite = $('#reloj-limite');
     const barra  = $('#barra-estado');
     const texto  = $('#barra-estado-texto');
     const faltan = cierre - Date.now();
 
-    limite.textContent = 'Límite: ' + cierre.toLocaleString('es-MX', {
-      day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false
+    limite.textContent = 'Cierra el ' + cierre.toLocaleString('es-MX', {
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false
     }) + ' h';
 
     barra.hidden = false;
 
     if (faltan <= 0) {
-      reloj.textContent = 'Registro cerrado';
       texto.textContent = 'Registro cerrado';
       barra.classList.add('barra__estado--cerrado');
       cerrarRegistro();
       return false;
     }
 
-    const dias  = Math.floor(faltan / 86400000);
-    const horas = Math.floor(faltan / 3600000) % 24;
-    const mins  = Math.floor(faltan / 60000) % 60;
-    const segs  = Math.floor(faltan / 1000) % 60;
+    const t = desglosar(cierre);
+    const dos = n => String(n).padStart(2, '0');
 
-    reloj.textContent = dias > 0
-      ? `${dias} d · ${String(horas).padStart(2, '0')} h ${String(mins).padStart(2, '0')} m`
-      : `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+    $('#bloque-meses').hidden = t.meses < 1;
+    $('#c-meses').textContent = t.meses;
+    $('#c-dias').textContent = t.dias;
+    $('#c-horas').textContent = dos(t.horas);
+    $('#c-minutos').textContent = dos(t.minutos);
+    $('#c-segundos').textContent = dos(t.segundos);
 
-    texto.textContent = dias > 0 ? `Registro abierto · faltan ${dias} días` : 'Último día de registro';
+    const diasTotales = Math.floor(faltan / 86400000);
+    texto.textContent = diasTotales > 0
+      ? `Registro abierto · faltan ${diasTotales} día${diasTotales === 1 ? '' : 's'}`
+      : 'Último día de registro';
     return true;
   }
 
+  /**
+   * Pasada la fecha, la página sigue en pie pero deja de aceptar
+   * registros: se oculta el formulario y se explica qué pasó.
+   */
   function cerrarRegistro() {
-    const boton = $('#enviar');
-    boton.disabled = true;
-    boton.textContent = 'El registro ya cerró';
-    mostrarError('#error-formulario',
-      `El registro cerró el ${cierre.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })}. ` +
-      `Escríbenos a ${CONFIG.contacto.correo} antes de pagar.`);
+    if ($('#cerrado').hidden === false) return;   // ya estaba cerrada
+
+    const cuando = cierre.toLocaleString('es-MX', {
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    $('#cerrado-texto').textContent =
+      `La convocatoria de ${CONFIG.evento.nombre} cerró el ${cuando} h. ` +
+      `Ya no es posible generar referencias ni pagar la inscripción.`;
+    $('#cerrado-whatsapp').href = `https://wa.me/${CONFIG.contacto.whatsapp}`;
+    $('#cerrado-correo').href = `mailto:${CONFIG.contacto.correo}`;
+    $('#cerrado-correo').textContent = CONFIG.contacto.correo;
+
+    // El contador deja de contar y lo dice; la portada deja de invitar.
+    $('#cuenta-regresiva').hidden = true;
+    $('#cuenta-fin').hidden = false;
+    $('#ir-al-pago').hidden = true;
+    $('.entrada').textContent =
+      'La convocatoria ya cerró. Abajo están los datos por si necesitas localizarnos.';
+
+    $('#cerrado').hidden = false;
+    $('#formulario').hidden = true;
+    $('#resumen').hidden = true;
+    $('#ficha').hidden = true;
   }
 
   /**
@@ -858,6 +907,7 @@
 
       try {
         await asignarFolio(pago);
+        if (pago.folio === undefined) return;
         estado.registro = pago;
         try {
           localStorage.setItem('cdm-ultimo-pago', JSON.stringify({
@@ -866,6 +916,11 @@
         } catch { /* modo privado: seguimos sin guardar */ }
         enviarCopia(pago);
         mostrarFicha(pago);
+      } catch (error) {
+        if (error.message !== 'registro cerrado') {
+          mostrarError('#error-formulario',
+            'No se pudo generar tu referencia. Inténtalo de nuevo en un momento.');
+        }
       } finally {
         boton.disabled = false;
         boton.textContent = textoOriginal;

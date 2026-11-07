@@ -7,6 +7,7 @@ editarlo y registrar un pago de un peso.
 
 import re
 import secrets
+from datetime import datetime, timezone
 from functools import wraps
 
 from flask import Blueprint, jsonify, request, current_app, send_from_directory
@@ -46,8 +47,23 @@ def calcular(procedencia: str, robots: int) -> tuple[int, int]:
     return unitario, unitario * robots
 
 
+def registro_cerrado() -> bool:
+    limite = current_app.config.get("CIERRE_REGISTRO", "")
+    if not limite:
+        return False
+    try:
+        return datetime.now(timezone.utc) > datetime.fromisoformat(limite)
+    except ValueError:
+        return False
+
+
 @bp.post("")
 def crear_pago():
+    if registro_cerrado():
+        return jsonify({
+            "error": "El registro ya cerró y no se pueden generar más referencias."
+        }), 409
+
     datos = request.get_json(silent=True) or {}
 
     faltan = [c for c in OBLIGATORIOS if not str(datos.get(c, "")).strip()]

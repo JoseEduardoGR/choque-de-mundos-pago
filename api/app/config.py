@@ -20,6 +20,10 @@ class Config:
 
     MAX_ROBOTS = int(os.environ.get("MAX_ROBOTS", "30"))
 
+    # Cierre del registro. En el navegador también se muestra, pero la
+    # validación que cuenta es esta: un POST a mano no la puede saltar.
+    CIERRE_REGISTRO = os.environ.get("CIERRE_REGISTRO", "2026-12-03T23:59:59-06:00")
+
     # Comprobantes que suben las escuelas.
     COMPROBANTES_DIR = Path(
         os.environ.get("COMPROBANTES_DIR", BASE_DIR.parent / "datos" / "comprobantes")

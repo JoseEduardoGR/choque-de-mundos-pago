@@ -257,15 +257,34 @@ a:hover { color: var(--cian); }
 .ficha-evento dd { margin: 0; font-size: 15px; }
 
 .ficha-evento__fila--reloj { background: rgba(46, 139, 255, .06); }
-.reloj {
-  display: block;
+
+.cuenta__fin {
+  margin: 0 0 4px;
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 110, 'wght' 800;
+  font-size: clamp(20px, 2.4vw, 26px);
+  text-transform: uppercase;
+  color: var(--ambar);
+}
+
+.cuenta {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  margin-bottom: 6px;
+}
+.cuenta__bloque { display: flex; flex-direction: column; align-items: flex-start; }
+.cuenta__bloque strong {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
-  font-size: clamp(18px, 2.4vw, 26px);
-  font-weight: 600;
-  letter-spacing: .02em;
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 600; line-height: 1;
   color: var(--cian);
 }
+.cuenta__bloque em {
+  font-family: var(--mono); font-style: normal;
+  font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--niebla); margin-top: 5px;
+}
+
 .reloj__limite {
   display: block;
   font-family: var(--mono);
@@ -273,6 +292,34 @@ a:hover { color: var(--cian); }
   letter-spacing: .08em;
   color: var(--niebla);
   margin-top: 2px;
+}
+
+/* ── registro cerrado ──────────────────────────────────────── */
+
+.cerrado {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 72px) max(20px, 4vw) clamp(56px, 9vw, 96px);
+  text-align: center;
+}
+.cerrado:focus { outline: none; }
+.cerrado .epigrafe { color: var(--ambar); }
+.cerrado__titulo {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 118, 'wght' 800;
+  font-size: clamp(30px, 6vw, 54px);
+  line-height: 1.02; text-transform: uppercase;
+  margin: 0 0 20px;
+}
+.cerrado__texto {
+  font-size: 16px; color: var(--niebla);
+  margin: 0 auto 14px; max-width: 52ch;
+}
+.cerrado__contacto {
+  margin-top: 26px; padding-top: 22px;
+  border-top: var(--borde);
+  font-family: var(--mono); font-size: 13px;
+  letter-spacing: .04em;
 }
 
 /* ── botones ───────────────────────────────────────────────── */
@@ -839,8 +886,10 @@ a:hover { color: var(--cian); }
 }
 
 @media (max-width: 620px) {
-  /* el reloj grande de la portada ya da el estado; la barra se queda con la marca */
+  /* el contador de la portada ya da el estado; la barra se queda con la marca */
   .barra__estado { display: none; }
+  .cuenta { gap: 10px; }
+  .cuenta__bloque strong { font-size: 20px; }
   .ficha-evento__fila { grid-template-columns: 92px minmax(0, 1fr); }
 }
 
@@ -869,8 +918,7 @@ a:hover { color: var(--cian); }
   body { background: #fff; color: #000; }
   .barra, .portada, .lienzo, .pie, .ficha__acciones, .saltar { display: none !important; }
   .ficha { max-width: none; padding: 0; }
-  .ficha__titulo span, .reloj { color: #000; }
-  .ficha__datos, .banco { border: 1px solid #999; background: #fff; }
+  .ficha__titulo span,   .ficha__datos, .banco { border: 1px solid #999; background: #fff; }
   .ficha__datos dd, .banco dd, .instrucciones { color: #000; }
   .copiar { display: none; }
 }

@@ -48,7 +48,7 @@
           Calcula lo que te toca pagar y obtén los datos para transferir.
           El lugar de tus robots queda apartado cuando confirmamos el pago.
         </p>
-        <a class="boton boton--primario" href="#pago">Calcular mi pago</a>
+        <a class="boton boton--primario" href="#pago" id="ir-al-pago">Calcular mi pago</a>
       </div>
 
       <dl class="ficha-evento">
@@ -63,11 +63,38 @@
         </div>
         <div class="ficha-evento__fila ficha-evento__fila--reloj">
           <dt>El registro cierra en</dt>
-          <dd><span class="reloj" id="reloj" role="timer" aria-live="off">—</span>
-              <span class="reloj__limite" id="reloj-limite"></span></dd>
+          <dd>
+            <p class="cuenta__fin" id="cuenta-fin" hidden>Registro cerrado</p>
+            <div class="cuenta" id="cuenta-regresiva" role="timer" aria-live="off">
+              <span class="cuenta__bloque" id="bloque-meses" hidden>
+                <strong id="c-meses">0</strong><em>meses</em>
+              </span>
+              <span class="cuenta__bloque"><strong id="c-dias">0</strong><em>días</em></span>
+              <span class="cuenta__bloque"><strong id="c-horas">00</strong><em>horas</em></span>
+              <span class="cuenta__bloque"><strong id="c-minutos">00</strong><em>min</em></span>
+              <span class="cuenta__bloque"><strong id="c-segundos">00</strong><em>seg</em></span>
+            </div>
+            <span class="reloj__limite" id="reloj-limite"></span>
+          </dd>
         </div>
       </dl>
     </div>
+  </section>
+
+  <!-- ░░ REGISTRO CERRADO ░░ -->
+  <section class="cerrado" id="cerrado" hidden tabindex="-1">
+    <p class="epigrafe">Convocatoria cerrada</p>
+    <h2 class="cerrado__titulo">El registro ya cerró</h2>
+    <p class="cerrado__texto" id="cerrado-texto"></p>
+    <p class="cerrado__texto">
+      Si ya generaste tu referencia y te falta subir el comprobante,
+      escríbenos: todavía podemos recibirlo.
+    </p>
+    <p class="cerrado__contacto">
+      <a id="cerrado-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
+      ·
+      <a id="cerrado-correo" href="#">Correo</a>
+    </p>
   </section>
 
   <!-- ░░ PAGO ░░ -->
@@ -246,7 +273,7 @@
       <ol class="instrucciones" id="instrucciones-pasarela">
         <li>La liga ya trae tu monto exacto: <strong id="pasarela-total"></strong>. No tienes que escribir nada.</li>
         <li>Paga con tarjeta, SPEI o en efectivo en OXXO.</li>
-        <li>Mándanos el comprobante con tu folio <strong id="pasarela-folio"></strong> por WhatsApp. Sin eso no podemos saber qué pago es tuyo.</li>
+        <li>Sube el comprobante aquí mismo, en el recuadro de abajo. Tu folio <strong id="pasarela-folio"></strong> ya queda ligado.</li>
         <li>Te confirmamos dentro de las siguientes 24 horas.</li>
       </ol>
     </div>
@@ -270,7 +297,7 @@
       <ol class="instrucciones">
         <li>Transfiere el monto exacto: <strong id="transferencia-monto"></strong>.</li>
         <li>Usa <strong id="transferencia-folio"></strong> como concepto o referencia.</li>
-        <li>Envíanos el comprobante por WhatsApp o correo. Tienes <strong id="transferencia-plazo"></strong> antes de que los lugares se liberen.</li>
+        <li>Sube tu comprobante aquí mismo. Tienes <strong id="transferencia-plazo"></strong> antes de que los lugares se liberen.</li>
       </ol>
     </div>
 
@@ -278,8 +305,9 @@
     <section class="comprobante" id="comprobante">
       <h3 class="ruta__titulo">Sube tu comprobante</h3>
       <p class="ruta__texto">
-        Cuando hayas transferido, sube aquí la foto o captura. Es lo que nos
-        permite confirmarte: sin comprobante el lugar se libera.
+        Cuando hayas transferido, sube aquí la foto o captura. Es la única
+        forma de entregarlo y lo que nos permite confirmarte: sin comprobante
+        el lugar se libera.
       </p>
 
       <label class="soltar" id="soltar" for="archivo">
@@ -300,8 +328,6 @@
     </section>
 
     <div class="ficha__acciones">
-      <a class="boton boton--fantasma" id="enviar-whatsapp" href="#" target="_blank" rel="noopener">Mandarlo por WhatsApp</a>
-      <a class="boton boton--fantasma" id="enviar-correo" href="#">Enviarlo por correo</a>
       <button class="boton boton--fantasma" type="button" id="descargar-ficha">Descargar ficha</button>
       <button class="boton boton--texto" type="button" id="volver">Corregir mis datos</button>
     </div>

@@ -71,6 +71,23 @@ tar czf - index.html css js img | ssh -i ~/.keys/ssh-key-2026-05-28.key \
   ubuntu@129.146.170.252 'tar xzf - -C ~/ares_pagos/web'
 ```
 
+## El cierre del registro
+
+El registro cierra el **3 de diciembre de 2026 a las 23:59** (hora del
+centro). La portada muestra una cuenta regresiva con meses, días, horas,
+minutos y segundos; los meses solo aparecen cuando falta más de uno.
+
+Pasada esa fecha la página **no se elimina**: se oculta el formulario y
+aparece un aviso de convocatoria cerrada con los datos de contacto. El
+contador deja de contar y dice "Registro cerrado".
+
+La fecha vive en dos lugares y **los dos deben coincidir**:
+
+- `evento.cierreRegistro` en `js/config.js` — lo que ve el visitante.
+- `CIERRE_REGISTRO` en el `.env` del servidor — la que de verdad manda.
+  El API responde 409 a cualquier intento posterior, así que no sirve de
+  nada saltarse la página.
+
 ## El comprobante se sube desde la página
 
 Al generar su folio, la escuela ve un recuadro para subir la foto o captura
@@ -83,7 +100,9 @@ folio (`0042-TESCI-20261107.jpg`) y queda ligado al pago.
 - El nombre lo pone el servidor, nunca el navegador.
 - Descargarlo exige el token: `GET /api/pagos/<folio>/comprobante`.
 
-WhatsApp queda como alternativa, ya no como el único camino.
+**Es la única forma de entregarlo.** Se quitaron a propósito los botones de
+mandarlo por WhatsApp o por correo: así todo comprobante queda ligado a su
+folio en la base, sin pasos manuales que se pierdan en una conversación.
 
 ### Qué revisar al conciliar
 

@@ -15,7 +15,7 @@ const CONFIG = {
     horario: '8:00 a 17:00 h',
     sede: 'Arco Techo y Estadio de Fútbol del TESCI',
     // Fecha y hora límite para registrarse (zona horaria de la CDMX).
-    cierreRegistro: '2026-11-30T23:59:59-06:00',
+    cierreRegistro: '2026-12-03T23:59:59-06:00',
     // Prefijo de los folios. Cámbialo cada edición del torneo.
     claveFolio: 'CDM26'
   },
@@ -158,7 +158,7 @@ const CONFIG = {
      whatsapp → solo dígitos, con lada de país (52 para México)
      ---------------------------------------------------------- */
   contacto: {
-    whatsapp: '525512345678',                        // ⚠ CAMBIAR
+    whatsapp: '525648151705',
     correo: 'robotica.ares@tesci.edu.mx',            // ⚠ CAMBIAR
     reglamentoUrl: '#'                               // ⚠ CAMBIAR
   },
