@@ -18,6 +18,21 @@ img/                logo, banner y convocatoria
 api/                servidor de folios y registro de pagos (ver api/LEEME.md)
 ```
 
+## En línea
+
+| | |
+|---|---|
+| Página | https://joseeduardogr.github.io/choque-de-mundos-pago/ |
+| API | https://ares-pagos.tail9cb92a.ts.net |
+| Repositorio | https://github.com/JoseEduardoGR/choque-de-mundos-pago |
+
+La página vive en GitHub Pages (HTTPS, URL fija) y la API en el servidor,
+expuesta por **Tailscale Funnel**, que le da HTTPS sin dominio ni abrir
+puertos. Se eligió Tailscale porque la red desde la que se trabaja bloquea
+`trycloudflare.com`.
+
+Para actualizar la página basta con `git push`: GitHub republica sola.
+
 ## Dónde vive
 
 | Pieza | Dónde |
@@ -26,6 +41,8 @@ api/                servidor de folios y registro de pagos (ver api/LEEME.md)
 | API | `/home/ubuntu/ares_pagos` · systemd `ares_pagos` · `127.0.0.1:4503` |
 | Página | `/home/ubuntu/ares_pagos/web` |
 | Base de datos | `/home/ubuntu/ares_pagos/datos/pagos.db` (SQLite) |
+| Comprobantes | `/home/ubuntu/ares_pagos/datos/comprobantes/` |
+| Túnel | `tailscale funnel` sobre el 4503 |
 | Token de admin | `/home/ubuntu/ares_pagos/.env` |
 
 ```bash
@@ -41,43 +58,46 @@ tar czf - index.html css js img | ssh -i ~/.keys/ssh-key-2026-05-28.key \
   ubuntu@129.146.170.252 'tar xzf - -C ~/ares_pagos/web'
 ```
 
-### Falta un paso: exponerla
+## El comprobante se sube desde la página
 
-La API corre pero solo es alcanzable dentro del servidor. En Oracle Cloud
-los puertos nuevos los bloquea la Security List de la VCN, que no se abre
-por SSH, así que el camino es pasar por el nginx del 4510. Falta agregar
-en `/etc/nginx/sites-enabled/sigma`, antes de la última llave:
+Al generar su folio, la escuela ve un recuadro para subir la foto o captura
+de su transferencia. El archivo se guarda en el servidor con el nombre del
+folio (`0042-TESCI-20261107.jpg`) y queda ligado al pago.
 
-```nginx
-    location /torneo/ {
-        proxy_pass http://127.0.0.1:4503/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        add_header "Access-Control-Allow-Origin" "*" always;
-        add_header "Access-Control-Allow-Methods" "GET, POST, PATCH, OPTIONS" always;
-        add_header "Access-Control-Allow-Headers" "Content-Type,X-Admin-Token" always;
-        if ($request_method = "OPTIONS") { return 204; }
-    }
+- Se aceptan JPG, PNG, WEBP y PDF, hasta 8 MB.
+- El tipo se valida por los **primeros bytes**, no por la extensión: un
+  `.jpg` que no sea imagen se rechaza.
+- El nombre lo pone el servidor, nunca el navegador.
+- Descargarlo exige el token: `GET /api/pagos/<folio>/comprobante`.
 
-    location /pagos/ {
-        alias /home/ubuntu/ares_pagos/web/;
-        index index.html;
-    }
+WhatsApp queda como alternativa, ya no como el único camino.
+
+### Qué revisar al conciliar
+
+```bash
+TOKEN=...   # de ~/ares_pagos/.env en el servidor
+curl -H "X-Admin-Token: $TOKEN" https://ares-pagos.tail9cb92a.ts.net/api/pagos/resumen
 ```
 
-Y luego `sudo nginx -t && sudo systemctl reload nginx`.
+El resumen incluye `con_comprobante` y `sin_comprobante`: los segundos son
+los que hay que perseguir.
 
-## Sobre el HTTPS que no hay
+## Los datos bancarios NO van en este repositorio
 
-El servidor sirve por `http://` plano: sin dominio, sin certificado.
-Por eso **los datos bancarios no se publican en la página**
-(`transferencia.mostrarDatosEnPagina: false`): sobre HTTP, cualquiera en la
-misma red podría alterar la CLABE en tránsito y desviar los pagos. En su
-lugar la ficha ofrece un botón para pedirlos por WhatsApp, con el folio y
-el monto ya escritos en el mensaje.
+El repositorio es público. Una CLABE aquí queda indexada y en el historial
+de git para siempre, así que los datos reales viven en el `.env` del
+servidor y la API los entrega junto con el folio:
 
-Cuando el sitio tenga HTTPS —dominio con Let's Encrypt, o un túnel de
-Cloudflare— pon esa bandera en `true` y la cuenta vuelve a aparecer.
+```bash
+# en ~/ares_pagos/.env del servidor
+BANCO=...
+TITULAR=...
+CLABE=...
+CUENTA=...
+```
+
+Luego `sudo systemctl restart ares_pagos`. En `js/config.js` esos campos
+deben quedarse vacíos.
 
 ## Dos modos de funcionar
 

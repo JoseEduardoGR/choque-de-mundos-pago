@@ -56,7 +56,10 @@ def sigla_de_escuela(nombre: str) -> str:
         if p.isalpha() and p.upper() not in VACIAS and len(p) >= 3
     ).upper()
     if len(iniciales) >= 2:
-        return iniciales[:LARGO_MAX_SIGLA]
+        # Si el nombre trae un número (Prepa Oficial 82, CETis 56), es lo
+        # que de verdad la distingue: va pegado a las iniciales.
+        numero = next((p for p in palabras if p.isdigit()), "")
+        return (iniciales + numero)[:LARGO_MAX_SIGLA]
 
     # 3. Último recurso: las primeras letras del nombre.
     return re.sub(r"[^A-Za-z0-9]", "", limpio).upper()[:LARGO_MAX_SIGLA] or "SINESC"
