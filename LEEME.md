@@ -42,14 +42,27 @@ Para actualizar la página basta con `git push`: GitHub republica sola.
 | Página | `/home/ubuntu/ares_pagos/web` |
 | Base de datos | `/home/ubuntu/ares_pagos/datos/pagos.db` (SQLite) |
 | Comprobantes | `/home/ubuntu/ares_pagos/datos/comprobantes/` |
-| Túnel | `tailscale funnel` sobre el 4503 |
+| Túnel | servicio systemd `ares_tunel` (Tailscale userspace) |
 | Token de admin | `/home/ubuntu/ares_pagos/.env` |
+
+Dos servicios systemd, los dos `enabled`: arrancan solos tras un reinicio
+y se levantan de nuevo si se caen (`Restart=always`).
+
+| Servicio | Qué hace |
+|---|---|
+| `ares_pagos` | La API y la página, en `127.0.0.1:4503` |
+| `ares_tunel` | Tailscale en userspace, que publica el 4503 con HTTPS |
 
 ```bash
 ssh -i ~/.keys/ssh-key-2026-05-28.key ubuntu@129.146.170.252
-systemctl status ares_pagos
+systemctl status ares_pagos ares_tunel
 sudo systemctl restart ares_pagos      # tras cambiar código o .env
 ```
+
+La configuración del Funnel vive en el estado de Tailscale
+(`~/.tailscale`), así que se restaura sola al arrancar el servicio: no hay
+que volver a ejecutar `tailscale funnel`. Verificado parando y arrancando
+ambos servicios en frío.
 
 Para actualizar la página o la API después de editarlas aquí:
 
