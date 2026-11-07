@@ -31,6 +31,15 @@
 }
 .acceso__texto { color: var(--niebla); font-size: 14.5px; margin: 0 0 24px; }
 .acceso .campo { margin-bottom: 18px; }
+
+/* Chrome pinta de blanco lo que autollena; aquí eso rompe el tema oscuro */
+.acceso input:-webkit-autofill,
+.acceso input:-webkit-autofill:hover,
+.acceso input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--hueso);
+  -webkit-box-shadow: 0 0 0 1000px var(--panel) inset;
+  caret-color: var(--hueso);
+}
 .acceso__pista {
   margin: 20px 0 0; padding-top: 18px;
   border-top: var(--borde);

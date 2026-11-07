@@ -470,6 +470,7 @@ a:hover { color: var(--cian); }
 .campo input[type="text"],
 .campo input[type="email"],
 .campo input[type="tel"],
+.campo input[type="password"],
 .campo select {
   font-family: var(--cuerpo);
   font-size: 16px;
