@@ -7,12 +7,14 @@ editarlo y registrar un pago de un peso.
 
 import re
 import secrets
+import time
 from datetime import datetime, timezone
 from functools import wraps
 
 from flask import Blueprint, jsonify, request, current_app, send_from_directory
 
 from . import repository
+from ... import sesion
 
 bp = Blueprint("pagos", __name__, url_prefix="/api/pagos")
 
@@ -21,16 +23,25 @@ CORREO = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$")
 
 
 def solo_admin(vista):
-    """Protege lo que no debe ver el público: la lista de pagos y su edición."""
+    """Protege lo que no debe ver el público: la lista de pagos y su edición.
+
+    Acepta dos llaves: el token de sesión que entrega el panel al iniciar
+    sesión, o el ADMIN_TOKEN fijo, cómodo para scripts y curl.
+    """
     @wraps(vista)
     def envoltura(*args, **kwargs):
-        esperado = current_app.config["ADMIN_TOKEN"]
-        if not esperado:
-            return jsonify({"error": "ADMIN_TOKEN sin configurar en el servidor"}), 503
+        fijo = current_app.config["ADMIN_TOKEN"]
+        hay_usuario = bool(current_app.config["ADMIN_HASH"])
+        if not fijo and not hay_usuario:
+            return jsonify({"error": "acceso sin configurar en el servidor"}), 503
+
         recibido = request.headers.get("X-Admin-Token", "")
-        if not secrets.compare_digest(recibido, esperado):
-            return jsonify({"error": "no autorizado"}), 401
-        return vista(*args, **kwargs)
+        if recibido:
+            if fijo and secrets.compare_digest(recibido, fijo):
+                return vista(*args, **kwargs)
+            if hay_usuario and sesion.token_valido(recibido):
+                return vista(*args, **kwargs)
+        return jsonify({"error": "no autorizado"}), 401
     return envoltura
 
 
@@ -228,3 +239,30 @@ def ver_comprobante(folio):
     return send_from_directory(
         current_app.config["COMPROBANTES_DIR"], pago["comprobante"]
     )
+
+
+
+# ── Entrada al panel ────────────────────────────────────────────────
+
+@bp.post("/sesion")
+def iniciar_sesion():
+    if not current_app.config["ADMIN_HASH"]:
+        return jsonify({"error": "el acceso por usuario no está configurado"}), 503
+
+    datos = request.get_json(silent=True) or {}
+    usuario = str(datos.get("usuario", "")).strip()
+    contrasena = str(datos.get("contrasena", ""))
+
+    if not sesion.credenciales_ok(usuario, contrasena):
+        # Un respiro deliberado: encarece probar contraseñas a lo bruto.
+        time.sleep(1.5)
+        return jsonify({"error": "usuario o contraseña incorrectos"}), 401
+
+    token, expira = sesion.crear_token(usuario)
+    return jsonify({"token": token, "expira": expira})
+
+
+@bp.get("/sesion")
+@solo_admin
+def revisar_sesion():
+    return jsonify({"valida": True})

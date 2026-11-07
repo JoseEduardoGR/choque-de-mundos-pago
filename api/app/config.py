@@ -14,9 +14,17 @@ class Config:
     # CORS_ORIGINS=https://pagos.tudominio.mx
     CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
 
-    # Token para listar y confirmar pagos. Sin esto, esos endpoints
-    # responden 503: nunca quedan abiertos por olvido.
+    # Token fijo, útil para scripts y curl. Sin él (ni usuario/hash),
+    # los endpoints protegidos responden 503: nunca quedan abiertos.
     ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
+
+    # Entrada al panel con usuario y contraseña. Del lado del servidor
+    # solo vive el hash scrypt: la contraseña no se guarda en ningún lado.
+    ADMIN_USUARIO = os.environ.get("ADMIN_USUARIO", "").strip()
+    ADMIN_HASH = os.environ.get("ADMIN_HASH", "").strip()
+
+    # Firma de los tokens de sesión.
+    SECRET_KEY = os.environ.get("SECRET_KEY", "").strip()
 
     MAX_ROBOTS = int(os.environ.get("MAX_ROBOTS", "30"))
 

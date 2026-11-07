@@ -20,7 +20,7 @@
     ? 'https://ares-pagos.tail9cb92a.ts.net'
     : location.origin;
 
-  const LLAVE = 'cdm-token-admin';
+  const LLAVE = 'cdm-sesion-admin';
   let token = '';
   let pagos = [];
   let filtro = '';
@@ -36,34 +36,73 @@
       ...opciones,
       headers: { ...(opciones.headers || {}), 'X-Admin-Token': token }
     });
-    if (respuesta.status === 401) throw new Error('token incorrecto');
+    if (respuesta.status === 401) {
+      if (token) salir();
+      throw new Error('sesión caducada');
+    }
     if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
     return respuesta;
   }
 
   /* ── Entrada ───────────────────────────────────────────── */
 
-  async function entrar(desdeMemoria) {
+  async function abrirTablero() {
+    $('#acceso').hidden = true;
+    $('#tablero').hidden = false;
+    $('#salir').hidden = false;
+    await cargar();
+  }
+
+  /** Reanuda la sesión guardada, si sigue siendo válida. */
+  async function reanudar(guardado) {
+    token = guardado;
+    try {
+      await pedir('/api/pagos/sesion');
+      await abrirTablero();
+    } catch {
+      token = '';
+      try { localStorage.removeItem(LLAVE); } catch {}
+    }
+  }
+
+  async function entrar(evento) {
+    if (evento) evento.preventDefault();
     const nodo = $('#error-acceso');
+    const boton = $('#entrar');
     nodo.hidden = true;
-    token = desdeMemoria || $('#token').value.trim();
-    if (!token) return;
+
+    const usuario = $('#usuario').value.trim();
+    const contrasena = $('#contrasena').value;
+    if (!usuario || !contrasena) {
+      nodo.textContent = 'Escribe tu usuario y tu contraseña.';
+      nodo.hidden = false;
+      return;
+    }
+
+    boton.disabled = true;
+    boton.textContent = 'Entrando…';
 
     try {
-      await pedir('/api/pagos/resumen');
+      const respuesta = await fetch(API + '/api/pagos/sesion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario, contrasena })
+      });
+      const datos = await respuesta.json().catch(() => ({}));
+
+      if (respuesta.status === 401) throw new Error('Usuario o contraseña incorrectos.');
+      if (!respuesta.ok) throw new Error(datos.error || `Error ${respuesta.status}`);
+
+      token = datos.token;
       try { localStorage.setItem(LLAVE, token); } catch {}
-      $('#acceso').hidden = true;
-      $('#tablero').hidden = false;
-      $('#salir').hidden = false;
-      await cargar();
+      $('#contrasena').value = '';
+      await abrirTablero();
     } catch (error) {
-      token = '';
-      if (!desdeMemoria) {
-        nodo.textContent = error.message === 'token incorrecto'
-          ? 'Ese token no es el correcto.'
-          : `No se pudo conectar con el servidor (${error.message}).`;
-        nodo.hidden = false;
-      }
+      nodo.textContent = error.message;
+      nodo.hidden = false;
+    } finally {
+      boton.disabled = false;
+      boton.textContent = 'Entrar';
     }
   }
 
@@ -74,7 +113,7 @@
     $('#tablero').hidden = true;
     $('#salir').hidden = true;
     $('#acceso').hidden = false;
-    $('#token').value = '';
+    $('#contrasena').value = '';
   }
 
   /* ── Datos ─────────────────────────────────────────────── */
@@ -241,8 +280,7 @@
   /* ── Arranque ──────────────────────────────────────────── */
 
   document.addEventListener('DOMContentLoaded', () => {
-    $('#entrar').addEventListener('click', () => entrar());
-    $('#token').addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+    $('#forma-acceso').addEventListener('submit', entrar);
     $('#salir').addEventListener('click', salir);
     $('#refrescar').addEventListener('click', cargar);
     $('#exportar').addEventListener('click', exportarCsv);
@@ -277,6 +315,6 @@
 
     let guardado = '';
     try { guardado = localStorage.getItem(LLAVE) || ''; } catch {}
-    if (guardado) entrar(guardado);
+    if (guardado) reanudar(guardado);
   });
 })();

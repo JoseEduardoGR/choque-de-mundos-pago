@@ -108,7 +108,36 @@ folio en la base, sin pasos manuales que se pierdan en una conversación.
 
 **https://ares-pagos.tail9cb92a.ts.net/admin/**
 
-Pide el token una sola vez (queda en el navegador) y muestra:
+Se entra con **usuario y contraseña**, validados contra el servidor.
+Del lado del servidor solo vive el **hash scrypt** de la contraseña: la
+contraseña en claro no está en ningún archivo, ni en el repositorio.
+
+Al entrar, el servidor emite un token firmado con HMAC que caduca a las
+12 horas. Se firma en vez de guardarse en memoria para que funcione con
+los tres workers de gunicorn sin estado compartido. Un intento fallido
+tarda a propósito un segundo y medio, para encarecer probar contraseñas
+a lo bruto.
+
+Las credenciales viven en el `.env` del servidor:
+
+```
+ADMIN_USUARIO=...
+ADMIN_HASH=scrypt:...     # generado con werkzeug.security
+SECRET_KEY=...            # firma de los tokens de sesión
+```
+
+Para cambiar la contraseña, en el servidor:
+
+```bash
+cd ~/ares_pagos
+printf '%s' 'LA-NUEVA' | ./venv/bin/python -c \
+  "import sys; from werkzeug.security import generate_password_hash; \
+   print(generate_password_hash(sys.stdin.read(), method='scrypt'))"
+# pega el resultado en ADMIN_HASH y reinicia
+sudo systemctl restart ares_pagos
+```
+
+El panel muestra:
 
 - Cifras arriba: cobrado, por cobrar, robots pagados y **cuántos siguen sin
   comprobante**, que es a quién hay que perseguir.
@@ -119,11 +148,13 @@ Pide el token una sola vez (queda en el navegador) y muestra:
 - Filtros por estado y buscador por folio, escuela, responsable o correo.
 - **Descargar CSV** de lo que esté filtrado, listo para Excel.
 
-El token nunca sale de tu navegador: cada petición lo manda en la cabecera
-`X-Admin-Token`. Si usas una computadora prestada, dale a *Salir*.
+La sesión nunca sale de tu navegador: cada petición manda el token en la
+cabecera `X-Admin-Token`, nunca en la URL. Si usas una computadora
+prestada, dale a *Salir*.
 
-El panel vive en el repositorio como código, pero sin el token no muestra
-absolutamente nada.
+El panel también está publicado en GitHub Pages
+(`…github.io/choque-de-mundos-pago/admin/`), pero sin credenciales no
+muestra nada: solo la pantalla de entrada.
 
 ### También por consola, si lo prefieres
 

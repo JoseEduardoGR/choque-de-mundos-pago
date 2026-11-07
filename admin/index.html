@@ -31,17 +31,23 @@
   <section class="acceso" id="acceso">
     <h1 class="acceso__titulo">Panel de pagos</h1>
     <p class="acceso__texto">
-      Pega el token de administración. Queda guardado en este navegador,
-      así que solo lo escribes una vez.
+      Entra con tu usuario para ver y confirmar los pagos del torneo.
     </p>
-    <p class="campo">
-      <label for="token">Token</label>
-      <input id="token" type="password" autocomplete="off" spellcheck="false">
-    </p>
-    <button class="boton boton--primario" type="button" id="entrar">Entrar</button>
+    <form id="forma-acceso">
+      <p class="campo">
+        <label for="usuario">Usuario</label>
+        <input id="usuario" type="text" autocomplete="username" spellcheck="false" autocapitalize="off">
+      </p>
+      <p class="campo">
+        <label for="contrasena">Contraseña</label>
+        <input id="contrasena" type="password" autocomplete="current-password">
+      </p>
+      <button class="boton boton--primario boton--ancho" type="submit" id="entrar">Entrar</button>
+    </form>
     <p class="error" id="error-acceso" hidden></p>
     <p class="acceso__pista">
-      Está en <code>~/ares_pagos/.env</code> del servidor, en la línea <code>ADMIN_TOKEN</code>.
+      La sesión dura 12 horas en este navegador. Si usas una computadora
+      prestada, cierra sesión al terminar.
     </p>
   </section>
 
