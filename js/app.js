@@ -482,12 +482,15 @@
         : 'Pide los datos de la cuenta';
 
       if (publicarCuenta) {
-        $('#banco').innerHTML =
-          filaDato('Banco', t.banco) +
-          filaDato('Titular', t.titular) +
-          filaDato('CLABE', t.clabe, true) +
-          filaDato('Cuenta', t.cuenta, true) +
-          filaDato('Concepto', r.folio, true);
+        // Una wallet solo tiene CLABE: la fila de cuenta se omite si viene
+        // vacía, en vez de mostrarse en blanco.
+        $('#banco').innerHTML = [
+          t.banco   && filaDato('Banco', t.banco),
+          t.titular && filaDato('Titular', t.titular),
+          t.clabe   && filaDato('CLABE', t.clabe, true),
+          t.cuenta  && filaDato('Cuenta', t.cuenta, true),
+          filaDato('Concepto', r.folio, true),
+        ].filter(Boolean).join('');
       } else {
         const peticion =
           `Hola, generé el folio ${r.folio} por ${monto} ` +
