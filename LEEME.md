@@ -26,10 +26,16 @@ api/                servidor de folios y registro de pagos (ver api/LEEME.md)
 | API | https://ares-pagos.tail9cb92a.ts.net |
 | Repositorio | https://github.com/JoseEduardoGR/choque-de-mundos-pago |
 
-La página vive en GitHub Pages (HTTPS, URL fija) y la API en el servidor,
-expuesta por **Tailscale Funnel**, que le da HTTPS sin dominio ni abrir
-puertos. Se eligió Tailscale porque la red desde la que se trabaja bloquea
-`trycloudflare.com`.
+| Panel | https://joseeduardogr.github.io/choque-de-mundos-pago/admin/ |
+
+**Todo lo que se ve vive en GitHub Pages**; el servidor solo corre la API.
+El túnel de Tailscale existe únicamente para darle HTTPS a esa API: sin él,
+el navegador bloquearía las llamadas desde una página HTTPS a un servidor
+HTTP. Se eligió Tailscale y no Cloudflare porque la red desde la que se
+trabaja bloquea `trycloudflare.com`.
+
+Quien entre a la raíz del túnel es redirigido a la página de GitHub, para
+que no haya dos copias de la misma web dando vueltas.
 
 Para actualizar la página basta con `git push`: GitHub republica sola.
 
@@ -39,7 +45,6 @@ Para actualizar la página basta con `git push`: GitHub republica sola.
 |---|---|
 | Servidor | Oracle Cloud · `ubuntu@129.146.170.252` |
 | API | `/home/ubuntu/ares_pagos` · systemd `ares_pagos` · `127.0.0.1:4503` |
-| Página | `/home/ubuntu/ares_pagos/web` |
 | Base de datos | `/home/ubuntu/ares_pagos/datos/pagos.db` (SQLite) |
 | Comprobantes | `/home/ubuntu/ares_pagos/datos/comprobantes/` |
 | Túnel | servicio systemd `ares_tunel` (Tailscale userspace) |
@@ -50,7 +55,7 @@ y se levantan de nuevo si se caen (`Restart=always`).
 
 | Servicio | Qué hace |
 |---|---|
-| `ares_pagos` | La API y la página, en `127.0.0.1:4503` |
+| `ares_pagos` | La API, en `127.0.0.1:4503` |
 | `ares_tunel` | Tailscale en userspace, que publica el 4503 con HTTPS |
 
 ```bash
@@ -64,11 +69,16 @@ La configuración del Funnel vive en el estado de Tailscale
 que volver a ejecutar `tailscale funnel`. Verificado parando y arrancando
 ambos servicios en frío.
 
-Para actualizar la página o la API después de editarlas aquí:
+**La página y el panel se actualizan con `git push`**: GitHub Pages
+republica sola, no hay que tocar el servidor.
+
+Para actualizar la API:
 
 ```bash
-tar czf - index.html css js img | ssh -i ~/.keys/ssh-key-2026-05-28.key \
-  ubuntu@129.146.170.252 'tar xzf - -C ~/ares_pagos/web'
+tar czf - api/app | ssh -i ~/.keys/ssh-key-2026-05-28.key \
+  ubuntu@129.146.170.252 'tar xzf - -C /tmp/d && cp -r /tmp/d/api/app/* ~/ares_pagos/app/'
+ssh -i ~/.keys/ssh-key-2026-05-28.key ubuntu@129.146.170.252 \
+  'sudo systemctl restart ares_pagos'
 ```
 
 ## El cierre del registro

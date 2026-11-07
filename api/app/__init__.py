@@ -1,14 +1,20 @@
 import os
 from pathlib import Path
 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, redirect, send_from_directory
 from flask_cors import CORS
 
 from . import db
 from .config import Config
 
-# Carpeta con la página. Si existe, la sirve el mismo servidor que la API:
-# así ambas comparten origen y basta un solo túnel, sin nginx de por medio.
+# A dónde mandar a quien llegue a la raíz del servidor. La página vive en
+# GitHub Pages; aquí solo corre la API.
+PAGINA = os.environ.get(
+    "PAGINA_URL", "https://joseeduardogr.github.io/choque-de-mundos-pago/"
+)
+
+# Carpeta con la página, solo si se quiere servir desde aquí. Normalmente
+# no existe: la página la publica GitHub Pages.
 WEB_DIR = Path(os.environ.get("WEB_DIR", Path(__file__).resolve().parent.parent / "web"))
 
 
@@ -37,9 +43,18 @@ def create_app() -> Flask:
         return jsonify({
             "estado": "ok",
             "motor": "postgres" if db.usa_postgres() else "sqlite",
-            "admin_configurado": bool(app.config["ADMIN_TOKEN"]),
-            "pagina": WEB_DIR.is_dir(),
+            "admin_configurado": bool(
+                app.config["ADMIN_TOKEN"] or app.config["ADMIN_HASH"]
+            ),
+            "sirve_pagina": WEB_DIR.is_dir(),
         })
+
+    if not WEB_DIR.is_dir():
+        # Sin carpeta web, quien llegue a la raíz va a la página de verdad
+        # en vez de encontrarse un 404.
+        @app.get("/")
+        def a_la_pagina():
+            return redirect(PAGINA, code=302)
 
     if WEB_DIR.is_dir():
         @app.get("/")
