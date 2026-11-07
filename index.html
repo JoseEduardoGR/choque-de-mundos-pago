@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pago de inscripción · Choque de Mundos — Club de Robótica ARES</title>
+<meta name="description" content="Paga la inscripción al torneo de robótica Choque de Mundos del Club ARES, TESCI. 11 de diciembre de 2026.">
+<meta name="theme-color" content="#05070D">
+<link rel="icon" href="img/logo-ares.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<div class="marca-fondo" aria-hidden="true"></div>
+
+<a class="saltar" href="#pago">Saltar al formulario de pago</a>
+
+<header class="barra">
+  <div class="barra__marca">
+    <img src="img/logo-ares.jpeg" alt="" width="40" height="40">
+    <span class="barra__club">Club de Robótica ARES<em>TESCI</em></span>
+  </div>
+  <div class="barra__estado" id="barra-estado" hidden>
+    <span class="punto" aria-hidden="true"></span>
+    <span id="barra-estado-texto">Registro abierto</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ░░ PORTADA ░░ -->
+  <section class="portada">
+    <div class="portada__texto">
+      <p class="epigrafe">Pago de inscripción · Edición 2026</p>
+      <h1 class="titulo">
+        <span class="titulo__l1">Choque</span>
+        <span class="titulo__l2">de Mundos</span>
+      </h1>
+      <p class="portada__pie">Torneo de Robótica</p>
+    </div>
+
+    <div class="portada__base">
+      <div class="portada__llamado">
+        <p class="entrada">
+          Calcula lo que te toca pagar y obtén los datos para transferir.
+          El lugar de tus robots queda apartado cuando confirmamos el pago.
+        </p>
+        <a class="boton boton--primario" href="#pago">Calcular mi pago</a>
+      </div>
+
+      <dl class="ficha-evento">
+        <div class="ficha-evento__fila">
+          <dt>Fecha</dt><dd id="dato-fecha"></dd>
+        </div>
+        <div class="ficha-evento__fila">
+          <dt>Horario</dt><dd id="dato-horario"></dd>
+        </div>
+        <div class="ficha-evento__fila">
+          <dt>Sede</dt><dd id="dato-sede"></dd>
+        </div>
+        <div class="ficha-evento__fila ficha-evento__fila--reloj">
+          <dt>El registro cierra en</dt>
+          <dd><span class="reloj" id="reloj" role="timer" aria-live="off">—</span>
+              <span class="reloj__limite" id="reloj-limite"></span></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ░░ PAGO ░░ -->
+  <div class="lienzo" id="pago">
+
+    <form class="formulario" id="formulario" novalidate>
+
+      <p class="recordatorio" id="recordatorio-registro">
+        <strong>El registro de tus robots va por separado.</strong>
+        <span id="recordatorio-texto"></span>
+      </p>
+
+      <!-- PASO 1 -->
+      <section class="paso" id="paso-monto">
+        <header class="paso__encabezado">
+          <p class="epigrafe">Paso 1 de 3</p>
+          <h2 class="paso__titulo">¿Cuánto te toca?</h2>
+          <p class="paso__nota">
+            Se cobra por robot. La tarifa depende de quién inscribe y de
+            cuántos robots lleva tu escuela en total.
+          </p>
+        </header>
+
+        <fieldset class="tarifas" id="tarifas">
+          <legend class="oculto">Tarifa que te corresponde</legend>
+          <!-- Las tarjetas se construyen desde js/config.js -->
+        </fieldset>
+        <p class="error" id="error-tarifa" hidden></p>
+
+        <h3 class="subtitulo">Cuántos robots pagas</h3>
+        <div class="contador">
+          <button class="contador__boton" type="button" id="menos" aria-label="Quitar un robot">−</button>
+          <input class="contador__campo" id="robots" type="number" inputmode="numeric"
+                 min="1" value="1" aria-label="Número de robots que vas a pagar">
+          <button class="contador__boton" type="button" id="mas" aria-label="Agregar un robot">+</button>
+          <p class="contador__cuenta" id="cuenta"></p>
+        </div>
+
+        <p class="pista" id="pista-volumen" hidden></p>
+        <p class="error" id="error-robots" hidden></p>
+      </section>
+
+      <!-- PASO 2 -->
+      <section class="paso" id="paso-quien">
+        <header class="paso__encabezado">
+          <p class="epigrafe">Paso 2 de 3</p>
+          <h2 class="paso__titulo">A nombre de quién</h2>
+          <p class="paso__nota">
+            Con estos datos cruzamos tu pago con los registros que ya hiciste.
+            Escríbelos igual que en el formulario de registro.
+          </p>
+        </header>
+
+        <div class="campos">
+          <p class="campo">
+            <label for="institucion">Escuela o institución</label>
+            <input id="institucion" name="institucion" type="text" maxlength="80" autocomplete="organization" required>
+            <span class="campo__ayuda" id="ayuda-institucion">Como la escribiste al registrarte.</span>
+          </p>
+          <p class="campo">
+            <label for="responsable">Nombre del responsable</label>
+            <input id="responsable" name="responsable" type="text" maxlength="60" autocomplete="name" required>
+          </p>
+          <p class="campo">
+            <label for="correo">Correo electrónico</label>
+            <input id="correo" name="correo" type="email" autocomplete="email" required>
+            <span class="campo__ayuda">Aquí te confirmamos el pago.</span>
+          </p>
+          <p class="campo">
+            <label for="telefono">WhatsApp a 10 dígitos</label>
+            <input id="telefono" name="telefono" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" required>
+          </p>
+        </div>
+
+        <p class="campo campo--ancho">
+          <label for="equipos">Equipos o robots que cubre este pago</label>
+          <input id="equipos" name="equipos" type="text" maxlength="200" autocomplete="off">
+          <span class="campo__ayuda">
+            Sepáralos con comas. Es lo que nos permite saber qué registros estás pagando.
+          </span>
+        </p>
+      </section>
+
+      <!-- PASO 3 -->
+      <section class="paso" id="paso-forma">
+        <header class="paso__encabezado">
+          <p class="epigrafe">Paso 3 de 3</p>
+          <h2 class="paso__titulo">Forma de pago</h2>
+          <p class="paso__nota" id="nota-pago">
+            Las dos opciones apartan tus lugares. La pasarela lo confirma al instante;
+            la transferencia, cuando recibimos tu comprobante.
+          </p>
+        </header>
+
+        <fieldset class="metodos" id="metodos">
+          <legend class="oculto">Forma de pago</legend>
+
+          <label class="metodo" for="metodo-pasarela">
+            <input type="radio" name="metodo" id="metodo-pasarela" value="pasarela" checked>
+            <span class="metodo__cuerpo">
+              <span class="metodo__nombre">Pagar en línea</span>
+              <span class="metodo__detalle" id="metodo-pasarela-detalle"></span>
+              <span class="etiqueta etiqueta--viva">Confirmación inmediata</span>
+            </span>
+          </label>
+
+          <label class="metodo" for="metodo-transferencia">
+            <input type="radio" name="metodo" id="metodo-transferencia" value="transferencia">
+            <span class="metodo__cuerpo">
+              <span class="metodo__nombre">Transferencia o SPEI</span>
+              <span class="metodo__detalle" id="metodo-transferencia-detalle"></span>
+              <span class="etiqueta">Envías tu comprobante</span>
+            </span>
+          </label>
+        </fieldset>
+
+        <div class="pago-unico" id="pago-unico" hidden>
+          <h3 class="pago-unico__titulo">Transferencia o SPEI</h3>
+          <p class="pago-unico__texto" id="pago-unico-texto"></p>
+        </div>
+
+        <p class="aviso" id="aviso-metodo" hidden></p>
+        <p class="error" id="error-formulario" hidden></p>
+
+        <button class="boton boton--primario boton--ancho" type="submit" id="enviar">
+          Generar mi referencia de pago
+        </button>
+        <p class="letra-chica">
+          Generar la referencia no cobra nada. En el siguiente paso vienen los datos de la cuenta.
+        </p>
+      </section>
+    </form>
+
+    <!-- RESUMEN -->
+    <aside class="resumen" id="resumen" aria-label="Resumen de tu pago">
+      <h2 class="resumen__titulo">Tu pago</h2>
+      <dl class="resumen__lista">
+        <div class="resumen__fila"><dt>Tarifa</dt><dd id="r-tarifa">Sin elegir</dd></div>
+        <div class="resumen__fila"><dt>Escuela</dt><dd id="r-escuela">—</dd></div>
+        <div class="resumen__fila"><dt>Robots</dt><dd id="r-robots">1</dd></div>
+        <div class="resumen__fila"><dt>Precio por robot</dt><dd id="r-unitario">—</dd></div>
+      </dl>
+      <p class="resumen__total">
+        <span>Total a pagar</span>
+        <strong id="r-total">$0</strong>
+      </p>
+      <p class="resumen__nota" id="r-nota">Elige tu tarifa para ver el costo.</p>
+    </aside>
+  </div>
+
+  <!-- ░░ FICHA DE PAGO ░░ -->
+  <section class="ficha" id="ficha" hidden tabindex="-1">
+    <header class="ficha__encabezado">
+      <p class="epigrafe">Referencia generada</p>
+      <h2 class="ficha__titulo">Folio <span id="f-folio"></span></h2>
+      <p class="ficha__nota" id="f-intro"></p>
+      <p class="aviso" id="ficha__encabezado-estado" hidden>
+        Folio provisional: no quedó registrado en el sistema. Mándanos tu
+        comprobante por WhatsApp para que podamos confirmarte.
+      </p>
+    </header>
+
+    <dl class="ficha__datos" id="f-datos"></dl>
+
+    <!-- Ruta: pasarela -->
+    <div class="ruta" id="ruta-pasarela" hidden>
+      <h3 class="ruta__titulo">Paga en línea</h3>
+      <p class="ruta__texto" id="ruta-pasarela-texto"></p>
+      <a class="boton boton--primario boton--ancho" id="boton-pasarela" href="#" target="_blank" rel="noopener">
+        Ir a la pasarela de pago
+      </a>
+      <p class="aviso" id="aviso-sin-liga" hidden>
+        Tu total todavía no tiene liga de pago en línea.
+        Usa la transferencia de abajo o escríbenos y te la mandamos.
+      </p>
+      <ol class="instrucciones" id="instrucciones-pasarela">
+        <li>La liga ya trae tu monto exacto: <strong id="pasarela-total"></strong>. No tienes que escribir nada.</li>
+        <li>Paga con tarjeta, SPEI o en efectivo en OXXO.</li>
+        <li>Mándanos el comprobante con tu folio <strong id="pasarela-folio"></strong> por WhatsApp. Sin eso no podemos saber qué pago es tuyo.</li>
+        <li>Te confirmamos dentro de las siguientes 24 horas.</li>
+      </ol>
+    </div>
+
+    <!-- Ruta: transferencia -->
+    <div class="ruta" id="ruta-transferencia" hidden>
+      <h3 class="ruta__titulo" id="transferencia-titulo">Transfiere a esta cuenta</h3>
+
+      <div class="pedir-datos" id="pedir-datos" hidden>
+        <p class="pedir-datos__texto">
+          Por seguridad no publicamos la cuenta en esta página. Pídenosla por
+          WhatsApp con el botón de abajo: tu folio y tu monto ya van en el
+          mensaje, y te contestamos con los datos para transferir.
+        </p>
+        <a class="boton boton--primario" id="pedir-datos-boton" href="#" target="_blank" rel="noopener">
+          Pedir los datos por WhatsApp
+        </a>
+      </div>
+
+      <dl class="banco" id="banco"></dl>
+      <ol class="instrucciones">
+        <li>Transfiere el monto exacto: <strong id="transferencia-monto"></strong>.</li>
+        <li>Usa <strong id="transferencia-folio"></strong> como concepto o referencia.</li>
+        <li>Envíanos el comprobante por WhatsApp o correo. Tienes <strong id="transferencia-plazo"></strong> antes de que los lugares se liberen.</li>
+      </ol>
+    </div>
+
+    <div class="ficha__acciones">
+      <a class="boton boton--primario" id="enviar-whatsapp" href="#" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a>
+      <a class="boton boton--fantasma" id="enviar-correo" href="#">Enviarlo por correo</a>
+      <button class="boton boton--fantasma" type="button" id="descargar-ficha">Descargar ficha</button>
+      <button class="boton boton--texto" type="button" id="volver">Corregir mis datos</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="pie">
+  <div class="pie__bloque">
+    <img src="img/logo-ares.jpeg" alt="Club de Robótica ARES" width="56" height="56">
+    <p id="pie-institucion"></p>
+  </div>
+  <div class="pie__bloque">
+    <h2 class="pie__titulo">¿Dudas con tu pago?</h2>
+    <p><a id="pie-whatsapp" href="#">WhatsApp</a> · <a id="pie-correo" href="#">Correo</a></p>
+    <p><a id="pie-reglamento" href="#" target="_blank" rel="noopener">Bases y reglamento</a></p>
+  </div>
+  <p class="pie__legal">
+    Los pagos no son reembolsables después del cierre de registro.
+    Esta página solo procesa el pago: el registro de equipos y robots se hace
+    por separado y debe estar completo para poder competir.
+  </p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

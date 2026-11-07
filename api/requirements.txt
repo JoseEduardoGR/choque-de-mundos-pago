@@ -1,0 +1,8 @@
+Flask==3.1.3
+flask-cors==6.0.5
+python-dotenv==1.2.2
+gunicorn==23.0.0
+
+# Solo si usas PostgreSQL en vez de SQLite:
+# psycopg[binary]==3.2.12
+# psycopg-pool==3.2.7

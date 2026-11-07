@@ -1,0 +1,13 @@
+# Nunca: contiene el token de administración de la API
+api/.env
+
+# Base de datos y artefactos locales
+api/datos/
+api/venv/
+api/*.log
+api/tunel.sh
+**/__pycache__/
+*.pyc
+
+# Archivos sueltos del escritorio
+.directory
