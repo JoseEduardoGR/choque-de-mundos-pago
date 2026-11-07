@@ -78,7 +78,7 @@ const CONFIG = {
      Si la dejas vacía, solo aparece el recordatorio sin liga.
      ---------------------------------------------------------- */
   registro: {
-    url: ''                                          // ⚠ CAMBIAR
+    url: 'https://docs.google.com/forms/d/e/1FAIpQLScgmSba94vGkbrbxYTxdxZtX8nje_HXQHpS8u9tCN_Okiy38A/viewform'
   },
 
   /* ----------------------------------------------------------
