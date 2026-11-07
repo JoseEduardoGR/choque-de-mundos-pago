@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pagos · Choque de Mundos</title>
+<link rel="icon" href="../img/logo-ares.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../css/estilos.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="panel">
+
+<header class="barra">
+  <div class="barra__marca">
+    <img src="../img/logo-ares.jpeg" alt="" width="40" height="40">
+    <span class="barra__club">Pagos recibidos<em>Choque de Mundos 2026</em></span>
+  </div>
+  <div class="barra__acciones">
+    <button class="boton boton--fantasma boton--chico" type="button" id="refrescar">Actualizar</button>
+    <button class="boton boton--texto" type="button" id="salir" hidden>Salir</button>
+  </div>
+</header>
+
+<main class="panel__cuerpo">
+
+  <!-- Entrada -->
+  <section class="acceso" id="acceso">
+    <h1 class="acceso__titulo">Panel de pagos</h1>
+    <p class="acceso__texto">
+      Pega el token de administración. Queda guardado en este navegador,
+      así que solo lo escribes una vez.
+    </p>
+    <p class="campo">
+      <label for="token">Token</label>
+      <input id="token" type="password" autocomplete="off" spellcheck="false">
+    </p>
+    <button class="boton boton--primario" type="button" id="entrar">Entrar</button>
+    <p class="error" id="error-acceso" hidden></p>
+    <p class="acceso__pista">
+      Está en <code>~/ares_pagos/.env</code> del servidor, en la línea <code>ADMIN_TOKEN</code>.
+    </p>
+  </section>
+
+  <!-- Panel -->
+  <div id="tablero" hidden>
+
+    <section class="cifras" id="cifras"></section>
+
+    <section class="controles">
+      <div class="filtros" id="filtros">
+        <button class="filtro filtro--activo" type="button" data-estado="">Todos</button>
+        <button class="filtro" type="button" data-estado="pendiente">Pendientes</button>
+        <button class="filtro" type="button" data-estado="confirmado">Confirmados</button>
+        <button class="filtro" type="button" data-estado="cancelado">Cancelados</button>
+        <button class="filtro" type="button" data-estado="sin-comprobante">Sin comprobante</button>
+      </div>
+      <input class="buscador" id="buscador" type="search"
+             placeholder="Buscar folio, escuela, responsable o correo…" aria-label="Buscar">
+      <button class="boton boton--fantasma boton--chico" type="button" id="exportar">Descargar CSV</button>
+    </section>
+
+    <p class="error" id="error-tabla" hidden></p>
+
+    <div class="tabla-caja">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Escuela</th>
+            <th>Responsable</th>
+            <th>Contacto</th>
+            <th class="n">Robots</th>
+            <th class="n">Total</th>
+            <th>Comprobante</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="filas"></tbody>
+      </table>
+      <p class="vacio" id="vacio" hidden>No hay pagos que coincidan.</p>
+    </div>
+  </div>
+</main>
+
+<!-- Comprobante en grande -->
+<div class="visor" id="visor" hidden>
+  <div class="visor__caja" role="dialog" aria-modal="true" aria-labelledby="visor-titulo">
+    <header class="visor__barra">
+      <span id="visor-titulo">Comprobante</span>
+      <button class="boton boton--texto" type="button" id="cerrar-visor">Cerrar</button>
+    </header>
+    <div class="visor__contenido" id="visor-contenido"></div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

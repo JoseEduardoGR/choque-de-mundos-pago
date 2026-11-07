@@ -1,0 +1,212 @@
+/* ============================================================
+   Panel de pagos — estilos propios.
+   Hereda la paleta y las tipografías de ../css/estilos.css
+   ============================================================ */
+
+.panel { background: var(--negro); }
+
+.panel__cuerpo {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 28px max(16px, 2.5vw) 80px;
+}
+
+.barra__acciones { display: flex; align-items: center; gap: 8px; }
+
+/* ── entrada ───────────────────────────────────────────────── */
+
+.acceso {
+  max-width: 460px;
+  margin: clamp(48px, 12vh, 120px) auto;
+  padding: 32px;
+  border: var(--borde);
+  border-radius: var(--radio);
+  background: var(--panel);
+}
+.acceso__titulo {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 116, 'wght' 800;
+  font-size: 28px; text-transform: uppercase;
+  margin: 0 0 12px;
+}
+.acceso__texto { color: var(--niebla); font-size: 14.5px; margin: 0 0 24px; }
+.acceso .campo { margin-bottom: 18px; }
+.acceso__pista {
+  margin: 20px 0 0; padding-top: 18px;
+  border-top: var(--borde);
+  font-size: 12.5px; color: var(--niebla);
+}
+.acceso__pista code {
+  font-family: var(--mono); font-size: 11.5px;
+  color: var(--azul); background: rgba(46, 139, 255, .08);
+  padding: 2px 5px; border-radius: 3px;
+}
+
+/* ── cifras ────────────────────────────────────────────────── */
+
+.cifras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.cifra {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 18px 20px;
+  border: var(--borde);
+  border-left: 2px solid var(--linea-viva);
+  border-radius: var(--radio);
+  background: var(--panel);
+}
+.cifra--bien   { border-left-color: var(--cian); }
+.cifra--ojo    { border-left-color: var(--azul); }
+.cifra--alerta { border-left-color: var(--ambar); }
+
+.cifra__titulo {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--niebla);
+}
+.cifra__valor {
+  font-family: var(--display);
+  font-variation-settings: 'wdth' 110, 'wght' 800;
+  font-size: 28px; line-height: 1.1; letter-spacing: -.01em;
+}
+.cifra--bien .cifra__valor   { color: var(--cian); }
+.cifra--alerta .cifra__valor { color: var(--ambar); }
+.cifra__pie { font-size: 12px; color: var(--niebla); }
+
+/* ── controles ─────────────────────────────────────────────── */
+
+.controles {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.filtros { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.filtro {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--niebla);
+  background: transparent;
+  border: var(--borde); border-radius: var(--radio);
+  padding: 9px 14px; cursor: pointer;
+  transition: color .15s, border-color .15s, background-color .15s;
+}
+.filtro:hover { color: var(--hueso); border-color: var(--linea-viva); }
+.filtro--activo {
+  color: #02080F; background: var(--azul); border-color: var(--azul);
+}
+
+.buscador {
+  flex: 1; min-width: 220px;
+  font-family: var(--cuerpo); font-size: 14px;
+  color: var(--hueso); background: var(--panel);
+  border: var(--borde); border-radius: var(--radio);
+  padding: 10px 14px;
+}
+.buscador:focus {
+  outline: none; border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(46, 139, 255, .16);
+}
+
+/* ── tabla ─────────────────────────────────────────────────── */
+
+.tabla-caja {
+  border: var(--borde); border-radius: var(--radio);
+  background: var(--panel); overflow-x: auto;
+}
+
+.tabla { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+
+.tabla th {
+  text-align: left;
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--niebla);
+  padding: 14px 14px; border-bottom: var(--borde);
+  white-space: nowrap;
+}
+.tabla td {
+  padding: 13px 14px;
+  border-bottom: var(--borde);
+  vertical-align: top;
+}
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla tbody tr:hover { background: rgba(46, 139, 255, .04); }
+.tabla .n { text-align: right; font-variant-numeric: tabular-nums; }
+
+.folio {
+  font-family: var(--mono); font-size: 12.5px;
+  color: var(--cian); white-space: nowrap;
+}
+.sub {
+  display: block; margin-top: 3px;
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--niebla); line-height: 1.45;
+}
+.sub a { color: var(--niebla); }
+.sub a:hover { color: var(--azul); }
+
+.enlace {
+  font-family: var(--cuerpo); font-size: 13px;
+  color: var(--azul); background: none; border: 0; padding: 0;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.enlace:hover { color: var(--cian); }
+.falta {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .06em; color: var(--ambar);
+}
+
+.marca {
+  display: inline-block;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 2px;
+  border: 1px solid currentColor;
+}
+.marca--pendiente  { color: var(--ambar); }
+.marca--confirmado { color: var(--cian); }
+.marca--cancelado  { color: #7E8FA6; }
+
+.acciones { white-space: nowrap; }
+.acciones .boton { margin-right: 4px; }
+
+.vacio {
+  margin: 0; padding: 40px 20px; text-align: center;
+  color: var(--niebla); font-size: 14px;
+}
+
+/* ── visor del comprobante ─────────────────────────────────── */
+
+.visor {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(2, 5, 10, .88);
+  display: grid; place-items: center;
+  padding: max(16px, 3vw);
+}
+.visor__caja {
+  width: min(760px, 100%); max-height: 92vh;
+  display: flex; flex-direction: column;
+  border: var(--borde); border-radius: var(--radio);
+  background: var(--panel-alto);
+  overflow: hidden;
+}
+.visor__barra {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 16px;
+  border-bottom: var(--borde);
+  font-family: var(--mono); font-size: 12px;
+  letter-spacing: .06em; color: var(--niebla);
+}
+.visor__contenido {
+  padding: 16px; overflow: auto; text-align: center;
+}
+.visor__contenido img { max-width: 100%; height: auto; margin: 0 auto; border-radius: var(--radio); }
+.visor__contenido iframe { width: 100%; height: 70vh; border: 0; background: #fff; }
+.visor__pie { margin: 14px 0 0; font-size: 13px; }
+.cargando { color: var(--niebla); padding: 40px 0; }
+
+@media (max-width: 720px) {
+  .tabla { font-size: 12.5px; }
+  .tabla th, .tabla td { padding: 10px; }
+  .cifra__valor { font-size: 22px; }
+}

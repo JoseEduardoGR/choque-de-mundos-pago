@@ -104,15 +104,33 @@ folio (`0042-TESCI-20261107.jpg`) y queda ligado al pago.
 mandarlo por WhatsApp o por correo: así todo comprobante queda ligado a su
 folio en la base, sin pasos manuales que se pierdan en una conversación.
 
-### Qué revisar al conciliar
+## Panel de administración
+
+**https://ares-pagos.tail9cb92a.ts.net/admin/**
+
+Pide el token una sola vez (queda en el navegador) y muestra:
+
+- Cifras arriba: cobrado, por cobrar, robots pagados y **cuántos siguen sin
+  comprobante**, que es a quién hay que perseguir.
+- Tabla con todos los pagos: folio, escuela, responsable, contacto con
+  enlaces a correo y WhatsApp, robots, total y estado.
+- **Ver foto** abre el comprobante sin salir de la página.
+- Botones para confirmar, cancelar o reabrir, con nota opcional.
+- Filtros por estado y buscador por folio, escuela, responsable o correo.
+- **Descargar CSV** de lo que esté filtrado, listo para Excel.
+
+El token nunca sale de tu navegador: cada petición lo manda en la cabecera
+`X-Admin-Token`. Si usas una computadora prestada, dale a *Salir*.
+
+El panel vive en el repositorio como código, pero sin el token no muestra
+absolutamente nada.
+
+### También por consola, si lo prefieres
 
 ```bash
 TOKEN=...   # de ~/ares_pagos/.env en el servidor
 curl -H "X-Admin-Token: $TOKEN" https://ares-pagos.tail9cb92a.ts.net/api/pagos/resumen
 ```
-
-El resumen incluye `con_comprobante` y `sin_comprobante`: los segundos son
-los que hay que perseguir.
 
 ## Los datos bancarios NO van en este repositorio
 

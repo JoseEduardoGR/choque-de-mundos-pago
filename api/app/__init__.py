@@ -48,9 +48,12 @@ def create_app() -> Flask:
 
         @app.get("/<path:recurso>")
         def estaticos(recurso):
-            destino = (WEB_DIR / recurso)
+            destino = WEB_DIR / recurso
             if destino.is_file():
                 return send_from_directory(WEB_DIR, recurso)
+            # Carpetas con su propio index, como /admin/
+            if destino.is_dir() and (destino / "index.html").is_file():
+                return send_from_directory(destino, "index.html")
             return send_from_directory(WEB_DIR, "index.html")
 
     return app
